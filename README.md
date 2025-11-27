@@ -42,8 +42,6 @@ La partie SIN vise à fournir :
 
 # 📁 3. Structure du Projet
 
-activateur-compost/
-│
-├─ index.html # Interface utilisateur
-├─ style.css # Design
-└─ script.js # Logique & alertes
+### - index.html # Interface utilisateur
+### - style.css # Design
+### - script.js # Logique & alertes
