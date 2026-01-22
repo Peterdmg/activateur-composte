@@ -1,4 +1,4 @@
-// Seuils du compost
+// Limites du compost
 const LIMITS = {
   tempMax: 65,
   tempMin: 30,
@@ -9,20 +9,13 @@ const LIMITS = {
   batLow: 20
 };
 
-// Adresse IP l'ESP32 (à adapter avec l'IP affichée dans le moniteur série)
+// URL Firebase Realtime Database (valeur actuelle)
 const FIREBASE_LATEST_URL =
   "https://activateur-composte-default-rtdb.europe-west1.firebasedatabase.app/latest.json";
 
+// Lecture des données réelles depuis Firebase
 function getDataFromSystem() {
   return fetch(FIREBASE_LATEST_URL, { cache: "no-store" }).then((res) => {
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  });
-}
-
-//  Lecture des données RÉELLES depuis l'ESP32
-function getDataFromSystem() {
-  return fetch(ESP32_URL).then((res) => {
     if (!res.ok) {
       throw new Error("HTTP " + res.status);
     }
@@ -135,7 +128,7 @@ function refresh() {
   getDataFromSystem()
     .then(updateUI)
     .catch((err) => {
-      console.error("Erreur de connexion à l'ESP32 :", err);
+      console.error("Erreur de connexion à Firebase :", err);
       const alertsList = document.getElementById("alertsList");
       alertsList.innerHTML =
         "<li>Erreur : impossible de récupérer les données (Firebase).</li>";
