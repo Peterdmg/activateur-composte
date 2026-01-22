@@ -10,7 +10,15 @@ const LIMITS = {
 };
 
 // Adresse IP l'ESP32 (à adapter avec l'IP affichée dans le moniteur série)
-const ESP32_URL = "http://192.168.1.42/data";
+const FIREBASE_LATEST_URL =
+  "https://activateur-composte-default-rtdb.europe-west1.firebasedatabase.app/latest.json";
+
+function getDataFromSystem() {
+  return fetch(FIREBASE_LATEST_URL, { cache: "no-store" }).then((res) => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
 
 //  Lecture des données RÉELLES depuis l'ESP32
 function getDataFromSystem() {
@@ -130,7 +138,7 @@ function refresh() {
       console.error("Erreur de connexion à l'ESP32 :", err);
       const alertsList = document.getElementById("alertsList");
       alertsList.innerHTML =
-        "<li>Erreur : impossible de contacter le système (ESP32 hors ligne).</li>";
+        "<li>Erreur : impossible de récupérer les données (Firebase).</li>";
     });
 }
 
