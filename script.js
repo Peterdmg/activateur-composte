@@ -9,36 +9,39 @@ const LIMITS = {
   batLow: 20
 };
 
-// Simulation des données (pour tester)
-// 👉 Tu remplaceras plus tard par fetch("http://ESP32/data")
+// Adresse IP l'ESP32 (à adapter avec l'IP affichée dans le moniteur série)
+const ESP32_URL = "http://192.168.1.42/data";
+
+//  Lecture des données RÉELLES depuis l'ESP32
 function getDataFromSystem() {
-  return Promise.resolve({
-    temperature: 55 + Math.random() * 20,
-    humidity: 30 + Math.random() * 50,
-    ph: 5.5 + Math.random() * 3,
-    battery: 10 + Math.random() * 80
+  return fetch(ESP32_URL).then((res) => {
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
+    }
+    return res.json();
   });
 }
 
+//  Mise à jour de l'interface
 function updateUI(data) {
-  document.getElementById("tempValue").textContent = data.temperature.toFixed(1) + " °C";
-  document.getElementById("humValue").textContent = data.humidity.toFixed(1) + " %";
+  document.getElementById("tempValue").textContent =
+    data.temperature.toFixed(1) + " °C";
+  document.getElementById("humValue").textContent =
+    data.humidity.toFixed(1) + " %";
   document.getElementById("phValue").textContent = data.ph.toFixed(1);
-  document.getElementById("batValue").textContent = data.battery.toFixed(0) + " %";
-
-  const alertsList = document.getElementById("alertsList");
-  alertsList.innerHTML = "";
+  document.getElementById("batValue").textContent =
+    data.battery.toFixed(0) + " %";
 
   const alerts = [];
 
-  // Temp
+  // Température
   const tempStatus = document.getElementById("tempStatus");
   if (data.temperature > LIMITS.tempMax) {
     tempStatus.textContent = "⚠️ Surchauffe";
     tempStatus.style.color = "#b91c1c";
     alerts.push("Température trop élevée !");
   } else if (data.temperature < LIMITS.tempMin) {
-    tempStatus.textContent = "ℹ️ Trop froid";
+    tempStatus.textContent = "ℹ️ Température trop basse";
     tempStatus.style.color = "#92400e";
   } else {
     tempStatus.textContent = "✔ OK";
@@ -48,11 +51,11 @@ function updateUI(data) {
   // Humidité
   const humStatus = document.getElementById("humStatus");
   if (data.humidity < LIMITS.humMin) {
-    humStatus.textContent = "⚠️ Trop sec";
+    humStatus.textContent = "⚠️ Compost trop sec";
     humStatus.style.color = "#b91c1c";
     alerts.push("Humidité trop faible !");
   } else if (data.humidity > LIMITS.humMax) {
-    humStatus.textContent = "⚠️ Trop humide";
+    humStatus.textContent = "⚠️ Compost trop humide";
     humStatus.style.color = "#b91c1c";
     alerts.push("Humidité trop élevée !");
   } else {
@@ -63,7 +66,7 @@ function updateUI(data) {
   // pH
   const phStatus = document.getElementById("phStatus");
   if (data.ph < LIMITS.phMin || data.ph > LIMITS.phMax) {
-    phStatus.textContent = "⚠️ Hors zone";
+    phStatus.textContent = "⚠️ Hors zone idéale";
     phStatus.style.color = "#b91c1c";
     alerts.push("pH non optimal !");
   } else {
@@ -72,36 +75,65 @@ function updateUI(data) {
   }
 
   // Batterie
-  document.getElementById("batteryLevel").style.width = data.battery + "%";
+  const batteryLevel = document.getElementById("batteryLevel");
   const batStatus = document.getElementById("batStatus");
-  if (data.battery < LIMITS.batLow) {
+  const bat = Math.max(0, Math.min(100, data.battery));
+
+  batteryLevel.style.width = bat + "%";
+
+  if (bat < LIMITS.batLow) {
     batStatus.textContent = "⚠️ Batterie faible";
     batStatus.style.color = "#b91c1c";
-    alerts.push("Batterie faible !");
+    alerts.push("Batterie faible, penser à recharger le système.");
   } else {
     batStatus.textContent = "✔ OK";
     batStatus.style.color = "#15803d";
   }
 
-  // Affichage des alertes
-  if (alerts.length === 0) {
-    alertsList.innerHTML = "<li>Aucune alerte</li>";
+  // Trappe
+  const doorValue = document.getElementById("doorValue");
+  const doorIndicator = document.getElementById("doorIndicator");
+
+  if (data.doorClosed) {
+    doorValue.textContent = "Fermée";
+    doorIndicator.className = "door-indicator closed";
   } else {
-    alerts.forEach(a => {
+    doorValue.textContent = "Ouverte";
+    doorIndicator.className = "door-indicator open";
+    alerts.push("La trappe du composteur est ouverte !");
+  }
+
+  // Alertes
+  const alertsList = document.getElementById("alertsList");
+  alertsList.innerHTML = "";
+
+  if (alerts.length === 0) {
+    alertsList.innerHTML = "<li>Aucune alerte pour le moment.</li>";
+  } else {
+    alerts.forEach((msg) => {
       const li = document.createElement("li");
-      li.textContent = a;
+      li.textContent = msg;
       alertsList.appendChild(li);
     });
   }
 
-  // Mise à jour de l'heure
+  // Heure de mise à jour
   document.getElementById("lastUpdate").textContent =
     new Date().toLocaleTimeString("fr-FR");
 }
 
-// Mise à jour toutes les 5 secondes
+//  Boucle de rafraîchissement
 function refresh() {
-  getDataFromSystem().then(updateUI);
+  getDataFromSystem()
+    .then(updateUI)
+    .catch((err) => {
+      console.error("Erreur de connexion à l'ESP32 :", err);
+      const alertsList = document.getElementById("alertsList");
+      alertsList.innerHTML =
+        "<li>Erreur : impossible de contacter le système (ESP32 hors ligne).</li>";
+    });
 }
+
+// Rafraîchissement d'infos toutes les 15s
 refresh();
-setInterval(refresh, 5000);
+setInterval(refresh, 15000);
