@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Activateur de Compost – Tableau de bord</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Tableau de bord – Activateur de compost</h1>
+    <p>Surveillance des paramètres essentiels et de l'autonomie du système.</p>
+  </header>
+
+  <main>
+    <section class="cards">
+      <div class="card">
+        <h2>Température</h2>
+        <p class="value" id="tempValue">-- °C</p>
+        <p class="status" id="tempStatus">En attente…</p>
+        <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>Humidité</h2>
+        <p class="value" id="humValue">-- %</p>
+        <p class="status" id="humStatus">En attente…</p>
+        <div class="chart-wrap"><canvas id="humChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>pH</h2>
+        <p class="value" id="phValue">--</p>
+        <p class="status" id="phStatus">En attente…</p>
+        <div class="chart-wrap"><canvas id="phChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>Autonomie</h2>
+        <p class="value" id="batValue">-- %</p>
+        <div class="battery">
+          <div class="battery-level" id="batteryLevel"></div>
+        </div>
+        <p class="status" id="batStatus">En attente…</p>
+      </div>
+    </section>
+
+    <section class="alerts">
+      <h2>Alertes</h2>
+      <ul id="alertsList">
+        <li>Aucune alerte pour le moment.</li>
+      </ul>
+    </section>
+
+    <section class="meta">
+      <div class="door-status">
+        <span class="door-label">Trappe :</span>
+        <span class="door-value" id="doorValue">--</span>
+        <span class="door-indicator" id="doorIndicator"></span>
+      </div>
+      <p>Dernière mise à jour : <span id="lastUpdate">--:--</span></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Projet STI2D – SIN : Pierre Demange</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
