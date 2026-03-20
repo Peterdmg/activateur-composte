@@ -7,7 +7,7 @@ const LIMITS = {
 };
 
 // ── URL du Raspberry Pi ───────────────────────────────────────────────────────
-const PI_API_URL = "http://homeserver.local:5000/latest";
+const PI_API_URL = "http://homeserver.local:5000/api/latest";
 
 // ── Historique (20 derniers points) ──────────────────────────────────────────
 const MAX_POINTS = 20;
